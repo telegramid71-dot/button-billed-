@@ -1,42 +1,32 @@
-from telethon import TelegramClient, events, Button
 import logging
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# আপনার তথ্যগুলো এখানে সেট করা আছে
+# আপনার দেওয়া তথ্যগুলো এখানে সেট করা হয়েছে
 api_id = 33825820
-api_hash = 'cb8b1916f13fc014feeefe4910ae68b7'
-bot_token = '8662371998:AAG67pyPYp6S8nKj5CgSBPfuj3cOoQJAo5Q'
+api_hash = "cb8b1916f13fc014feeefe4910ae68b7"
+bot_token = "8662371998:AAG67pyPYp6S8nKj5CgSBPfuj3cOoQJAo5Q"
 
 # লগিং সেটআপ
-logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
-# ক্লায়েন্ট শুরু করা
-bot = TelegramClient('bot_session', api_id, api_hash).start(bot_token=bot_token)
+app = Client("my_button_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-print("বটটি সফলভাবে চালু হয়েছে...")
-
-@bot.on(events.NewMessage(incoming=True))
-async def add_button(event):
-    # শুধুমাত্র চ্যানেল বা গ্রুপে কাজ করবে
-    if event.is_private:
-        return
-
+@app.on_message(filters.channel)
+async def add_button_to_post(client, message):
     try:
-        # বাটনের টেক্সট এবং লিংক
-        button_text = "#r 👀See Full Video👀"
-        button_link = "https://y.hn/kfvvd"
+        # বাটন তৈরি
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("#r 👀See Full Video👀", url="https://y.hn/kfvvd")]
+        ])
 
-        # মেসেজটি কপি করে বাটনসহ পাঠানো
-        await bot.send_message(
-            event.chat_id,
-            event.message,
-            buttons=Button.url(button_text, button_link)
-        )
-
-        # আসল মেসেজটি ডিলিট করে দেওয়া (যাতে ডাবল পোস্ট না দেখায়)
-        await event.delete()
-
+        # মেসেজে বাটন এডিট করে বসিয়ে দেওয়া
+        await message.edit_reply_markup(reply_markup=keyboard)
+        print(f"Button added to message: {message.id}")
+        
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error adding button: {e}")
+        # অনেক সময় বট অ্যাডমিন না হলে বা পারমিশন না থাকলে এরর আসতে পারে
 
-# বট চালু রাখা
-bot.run_until_disconnected()
+print("Bot is starting...")
+app.run()
