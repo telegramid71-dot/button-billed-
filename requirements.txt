@@ -1,2 +1,2 @@
-telethon
-cryptg
+pyrogram
+tgcrypto
