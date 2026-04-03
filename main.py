@@ -26,7 +26,7 @@ async def add_button_to_post(client, message):
     try:
         # বাটন তৈরি
         keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("#r 👀See Full Video👀", url="https://y.hn/kfvvd")]
+            [InlineKeyboardButton(🔴 👀See Full Video👀", url="https://y.hn/kfvvd")]
         ])
 
         # মেসেজে বাটন এডিট করে বসিয়ে দেওয়া
