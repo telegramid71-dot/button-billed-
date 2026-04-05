@@ -19,7 +19,7 @@ logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 load_dotenv()
-TOKEN = os.getenv("8661328825:AAFrlTkK3T1G925EYnTzjmtSdM5itGUDEXc")
+TOKEN = "8661328825:AAFrlTkK3T1G925EYnTzjmtSdM5itGUDEXc"
 
 ADMIN1_ID = 5944842058
 ADMIN2_ID = 6947301796
