@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
-TOKEN = "8662371998:AAG67pyPYp6S8nKj5CgSBPfuj3cOoQJAo5Q"
+TOKEN = "8661328825:AAFPMOEVhvIRbQrVbFbaZJ9M6UD1s37OCZA"
 # Admin configurations
 ADMIN1_ID = 5944842058
 ADMIN2_ID = 6947301796
