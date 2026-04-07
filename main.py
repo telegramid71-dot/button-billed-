@@ -68,30 +68,29 @@ async def cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(f"বাটন {'এরাওয়াত' if query.data == 'p1' else 'খুলা আকাশ'} সেট হয়েছে ✅")
 
 async def auto_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """এটি প্রতিটি পোস্টের জন্য আলাদা টাস্ক হিসেবে কাজ করবে (Fast Response)"""
     post = update.channel_post
-    s = load_settings()
+    if not post: return
     
-    # বাটন তৈরি
+    s = load_settings()
     b1 = InlineKeyboardButton("👀 See Full Info 👀", url=s["button1_url"])
     p = PRESETS[s["button2_preset"]]
     b2 = InlineKeyboardButton(p["text"], url=p["url"])
     markup = InlineKeyboardMarkup([[b1], [b2]])
 
-    # চেষ্টা করবে বাটন লাগাতে, যদি ফ্ল্যাড কন্ট্রোল (Rate limit) থাকে তবে ওয়েট করবে
-    for attempt in range(3): 
-        try:
-            await context.bot.edit_message_reply_markup(
-                chat_id=post.chat_id,
-                message_id=post.message_id,
-                reply_markup=markup
-            )
-            break 
-        except RetryAfter as e:
-            await asyncio.sleep(e.retry_after)
-        except TelegramError as e:
-            logger.error(f"Error: {e}")
-            break
+    try:
+        await context.bot.edit_message_reply_markup(
+            chat_id=post.chat_id,
+            message_id=post.message_id,
+            reply_markup=markup
+        )
+    except BadRequest as e:
+        if "Message is not modified" in str(e):
+            # যদি বাটন অলরেডি থাকে, তবে এই এররটা ইগনোর করবে
+            logger.info("Button already exists, skipping...")
+        else:
+            logger.error(f"Telegram Error: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected Error: {e}")
 
 def main():
     app = Application.builder().token(TOKEN).build()
