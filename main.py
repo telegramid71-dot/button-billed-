@@ -13,9 +13,11 @@ from telegram.error import RetryAfter, BadRequest
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TOKEN = "8661328825:AAFrlTkK3T1G925EYnTzjmtSdM5itGUDEXc"
-ADMIN1_ID = 5944842058
-ADMIN2_ID = 6947301796
+# Railway.app এর Variables থেকে ডেটা লোড করা হচ্ছে
+TOKEN = os.getenv("BOT_TOKEN")
+ADMIN1_ID = int(os.getenv("ADMIN1_ID", 0))
+ADMIN2_ID = int(os.getenv("ADMIN2_ID", 0))
+
 SETTINGS_FILE = "settings.json"
 
 # বটের স্ট্যাটাস ট্র্যাক করার জন্য
@@ -41,16 +43,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         is_active = True
         if uid == ADMIN1_ID:
             kb = [[InlineKeyboardButton("Erawat Khan", callback_data="p1")], [InlineKeyboardButton("খুলা আকাশ", callback_data="p2")]]
-            await update.message.reply_text("✅ বট চালু হয়েছে! কোন বাটন সেট করবেন?", reply_markup=InlineKeyboardMarkup(kb))
+            await update.message.reply_text("✅ বট চালু হয়েছে! কোন বাটন সেট করবেন?", reply_markup=InlineKeyboardMarkup(kb))
         else:
             context.user_data["ask_url"] = True
-            await update.message.reply_text("✅ বট চালু হয়েছে! নতুন লিংকটি দিন:")
+            await update.message.reply_text("✅ বট চালু হয়েছে! নতুন লিংকটি দিন:")
 
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global is_active
     if update.effective_user.id in [ADMIN1_ID, ADMIN2_ID]:
         is_active = False
-        await update.message.reply_text("🛑 বট থামানো হয়েছে!")
+        await update.message.reply_text("🛑 বট থামানো হয়েছে!")
 
 async def handle_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id == ADMIN2_ID and context.user_data.get("ask_url"):
@@ -73,10 +75,10 @@ async def auto_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     post = update.channel_post
     if not post: return
 
-    # ১. একাধিক মিডিয়া (Album) স্কিপ করা
+    # ১. একাধিক মিডিয়া (Album) স্কিপ করা
     if post.media_group_id: return
 
-    # ২. ফরোয়ার্ড করা পোস্টের জন্য ചെറിയ বিরতি (Rate limit এড়াতে)
+    # ২. ফরোয়ার্ড করা পোস্টের জন্য রেট লিমিট এড়ানো
     await asyncio.sleep(1)
 
     s = load_settings()
@@ -95,6 +97,11 @@ async def auto_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.info(f"Skipping: {e}")
 
 def main():
+    # টোকেন না থাকলে বট রান হবে না
+    if not TOKEN:
+        logger.error("BOT_TOKEN is missing in environment variables!")
+        return
+
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("stop", stop))
